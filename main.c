@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include <windows.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "./Headers/stb_image.h"
@@ -82,13 +83,16 @@ int main(int argc, char **argv) {
     NN nn = nn_alloc(arch, ARRAY_LEN(arch));
     NN g = nn_alloc(arch, ARRAY_LEN(arch));
     nn_rand(nn, -1, 1);
-
+    
     float rate = 1.0f;
     size_t max_epochs = 10*100000;
+    float const best = nn_cost(nn, ti, to)*100000000;
     for(size_t epoch = 0; epoch < max_epochs; ++epoch) {
         nn_backprop(nn, g, ti, to);
         nn_learn(nn, g, rate);
-        if(epoch % 100 == 0)
+        if(epoch % 100 == 0) {
+            system("cls");
+            printf("%d / %d . Best value for maximum epochs %f\n\n", epoch, max_epochs, best);
             for(size_t y = 0; y < (size_t) img_height; ++y) {
                 for(size_t x = 0; x < (size_t) img_width; ++x) {
                     MAT_AT(NN_INPUT(nn), 0, 0) = (float)x/(img_width - 1);
@@ -97,8 +101,10 @@ int main(int argc, char **argv) {
                     uint8_t pixel = MAT_AT(NN_OUTPUT(nn), 0, 0)*255.f;
                     printf("%3u", pixel);
                 }
-            printf("\n");
-    }
+                printf("\n");
+            }
+            // Sleep(100); // if you want :-)
+        }
     }
 
     printf("Real: \n");
