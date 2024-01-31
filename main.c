@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    printf("%s size %dx%d %d bits", 
+    printf("%s size %dx%d %d bits\n", 
             img_file_path, img_width, 
             img_height, img_comp*8);
 
@@ -47,12 +47,15 @@ int main(int argc, char **argv) {
 
     for(int y = 0; y < img_height; y++) {
         for(int x = 0; x < img_width; x++) {
-            float nx = (float)x/(img_width - 1);
-            float ny = (float)y/(img_height - 1);
-            printf("%3u ", img_pixels[y*img_width + x]);
+            size_t i = y*img_width + x;
+            MAT_AT(t, i, 0) = (float)x/(img_width - 1);
+            MAT_AT(t, i, 1) = (float)y/(img_height - 1);
+            MAT_AT(t, i, 2) = img_pixels[i]/255.f;
         }
         printf("\n");
     }
+
+    MAT_PRINT(t);
 
     return 0;
 }
