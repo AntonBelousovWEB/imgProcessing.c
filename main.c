@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
             img_file_path, img_width, 
             img_height, img_comp*8);
 
-    Mat t = mat_alloc(NULL, img_width*img_height, 3);
+    Mat t = mat_alloc(img_width*img_height, 3);
 
     for(int y = 0; y < img_height; y++) {
         for(int x = 0; x < img_width; x++) {
@@ -56,6 +56,14 @@ int main(int argc, char **argv) {
     }
 
     MAT_PRINT(t);
+
+    const char *out_file_path = "img.mat";
+    FILE *out = fopen(out_file_path, "wb");
+    if(out == NULL) {
+        fprintf(stderr, "Error: could not open file %s\n", out_file_path);
+    }
+    mat_save(out, t);
+    printf("Generated %s from %s\n", out_file_path, img_file_path);
 
     return 0;
 }
