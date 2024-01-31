@@ -78,36 +78,33 @@ int main(int argc, char **argv) {
     }
     mat_save(out, t);
 
-    size_t arch[] = {2, 28, 1};
+    size_t arch[] = {2, 7, 1};
     NN nn = nn_alloc(arch, ARRAY_LEN(arch));
     NN g = nn_alloc(arch, ARRAY_LEN(arch));
     nn_rand(nn, -1, 1);
 
     float rate = 1.0f;
-    size_t max_epochs = 10*1000;
+    size_t max_epochs = 10*100000;
     for(size_t epoch = 0; epoch < max_epochs; ++epoch) {
         nn_backprop(nn, g, ti, to);
         nn_learn(nn, g, rate);
         if(epoch % 100 == 0)
-            printf("%zu: cost = %f\n", epoch, nn_cost(nn, ti, to));
+            for(size_t y = 0; y < (size_t) img_height; ++y) {
+                for(size_t x = 0; x < (size_t) img_width; ++x) {
+                    MAT_AT(NN_INPUT(nn), 0, 0) = (float)x/(img_width - 1);
+                    MAT_AT(NN_INPUT(nn), 0, 1) = (float)y/(img_height - 1);
+                    nn_forward(nn);
+                    uint8_t pixel = MAT_AT(NN_OUTPUT(nn), 0, 0)*255.f;
+                    printf("%3u", pixel);
+                }
+            printf("\n");
+    }
     }
 
     printf("Real: \n");
     for(size_t y = 0; y < (size_t) img_height; ++y) {
         for(size_t x = 0; x < (size_t) img_width; ++x) {
             printf("%3u ", img_pixels[y*img_width + x]);
-        }
-        printf("\n");
-    }
-
-    printf("Neural Network: \n");
-    for(size_t y = 0; y < (size_t) img_height; ++y) {
-        for(size_t x = 0; x < (size_t) img_width; ++x) {
-            MAT_AT(NN_INPUT(nn), 0, 0) = (float)x/(img_width - 1);
-            MAT_AT(NN_INPUT(nn), 0, 1) = (float)y/(img_height - 1);
-            nn_forward(nn);
-            uint8_t pixel = MAT_AT(NN_OUTPUT(nn), 0, 0)*255.f;
-            printf("%3u", pixel);
         }
         printf("\n");
     }
