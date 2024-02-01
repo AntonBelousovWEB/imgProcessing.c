@@ -79,13 +79,13 @@ int main(int argc, char **argv) {
     }
     mat_save(out, t);
 
-    size_t arch[] = {2, 7, 1};
+    size_t arch[] = {2, 500, 1};
     NN nn = nn_alloc(arch, ARRAY_LEN(arch));
     NN g = nn_alloc(arch, ARRAY_LEN(arch));
     nn_rand(nn, -1, 1);
     
     float rate = 1.0f;
-    size_t max_epochs = 10*100000;
+    size_t max_epochs = 10000;
     float const best = nn_cost(nn, ti, to)*100000000;
     for(size_t epoch = 0; epoch < max_epochs; ++epoch) {
         nn_backprop(nn, g, ti, to);
