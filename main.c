@@ -4,6 +4,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "./Headers/stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "./Headers/stb_image_write.h"
 
 #define NN_IMPLEMENTATION
 #include "./Headers/nn.h"
@@ -106,6 +108,29 @@ int main(int argc, char **argv) {
             // Sleep(100); // if you want :-)
         }
     }
+
+    size_t out_width = 512;
+    size_t out_height = 512; 
+    uint8_t *out_pixels = malloc(sizeof(*out_pixels)*out_width*out_height);
+    assert(out_pixels != NULL);
+
+    for(size_t y = 0; y < out_height; ++y) {
+        for(size_t x = 0; x < out_width; ++x) {
+            MAT_AT(NN_INPUT(nn), 0, 0) = (float)x/(out_width - 1);
+            MAT_AT(NN_INPUT(nn), 0, 1) = (float)y/(out_height - 1);
+            nn_forward(nn);
+            uint8_t pixel = MAT_AT(NN_OUTPUT(nn), 0, 0)*255.f;
+            out_pixels[y*out_width + x] = pixel;
+        }
+    }
+
+    const char *out_file_path_img = "./Images/generated/img.png";
+    if(!stbi_write_png(out_file_path_img, out_width, out_height, 1, out_pixels, out_width*sizeof(*out_pixels))) {
+        fprintf(stderr, "Error: could not save image %s\n", out_file_path_img);
+        return 1;
+    }
+
+    printf("Generated %s from %s\n", out_file_path_img, img_file_path);
 
     printf("Real: \n");
     for(size_t y = 0; y < (size_t) img_height; ++y) {
