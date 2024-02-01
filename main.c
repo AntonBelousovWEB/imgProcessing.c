@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
     }
     mat_save(out, t);
 
-    size_t arch[] = {2, 500, 1};
+    size_t arch[] = {2, 7, 1};
     NN nn = nn_alloc(arch, ARRAY_LEN(arch));
     NN g = nn_alloc(arch, ARRAY_LEN(arch));
     nn_rand(nn, -1, 1);
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
                     MAT_AT(NN_INPUT(nn), 0, 1) = (float)y/(img_height - 1);
                     nn_forward(nn);
                     uint8_t pixel = MAT_AT(NN_OUTPUT(nn), 0, 0)*255.f;
-                    printf("%3u", pixel);
+                    if(pixel) printf("%3u ", pixel); else printf("    ");
                 }
                 printf("\n");
             }
@@ -110,7 +110,8 @@ int main(int argc, char **argv) {
     printf("Real: \n");
     for(size_t y = 0; y < (size_t) img_height; ++y) {
         for(size_t x = 0; x < (size_t) img_width; ++x) {
-            printf("%3u ", img_pixels[y*img_width + x]);
+            uint8_t pixel = img_pixels[y*img_width + x];
+            if(pixel) printf("%3u ", pixel); else printf("    ");
         }
         printf("\n");
     }
