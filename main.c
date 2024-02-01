@@ -71,8 +71,8 @@ int main(int argc, char **argv) {
         .es = &MAT_AT(t, 0, ti.cols),
     };
 
-    MAT_PRINT(ti);
-    MAT_PRINT(to);
+    // MAT_PRINT(ti);
+    // MAT_PRINT(to);
 
     const char *out_file_path = "img.mat";
     FILE *out = fopen(out_file_path, "wb");
@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
     nn_rand(nn, -1, 1);
     
     float rate = 1.0f;
-    size_t max_epochs = 10000;
+    size_t max_epochs = 1000000;
     float const best = nn_cost(nn, ti, to)*100000000;
     for(size_t epoch = 0; epoch < max_epochs; ++epoch) {
         nn_backprop(nn, g, ti, to);
@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
                 for(size_t x = 0; x < (size_t) img_width; ++x) {
                     MAT_AT(NN_INPUT(nn), 0, 0) = (float)x/(img_width - 1);
                     MAT_AT(NN_INPUT(nn), 0, 1) = (float)y/(img_height - 1);
-                    nn_forward(nn);
+                    nn_forward(nn); // sig function activation
                     uint8_t pixel = MAT_AT(NN_OUTPUT(nn), 0, 0)*255.f;
                     if(pixel) printf("%3u ", pixel); else printf("    ");
                 }
