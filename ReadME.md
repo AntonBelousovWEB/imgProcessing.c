@@ -14,4 +14,8 @@ Welcome to `imgProcessing.c` – a lightweight neural network designed for basic
 3. After run the code you can see the ```Best value for maximum epochs``` and substitute the value into the variable for better training of the neural network
 4. Compile ```gcc main.c``` and run the code ```a.exe path-to-image``` :-)
 
+# Introduction to the training:
+
+<img src="https://i.ibb.co/g7NzFgd/2024-02-01-154445.png">
+
 Happy coding!
