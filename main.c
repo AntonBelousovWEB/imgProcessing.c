@@ -18,6 +18,28 @@ char *args_shift(int *argc, char ***argv) {
     return result;
 }
 
+char *matrix_to_string(Mat *matrix) {
+    size_t buffer_size = 0;
+    for (size_t i = 0; i < matrix->rows; ++i) {
+        for (size_t j = 0; j < matrix->cols; ++j) {
+            buffer_size += snprintf(NULL, 0, "%f ", MAT_AT(*matrix, i, j));
+        }
+        buffer_size += snprintf(NULL, 0, "\n");
+    }
+    char *buffer = malloc(buffer_size + 1);
+    if (buffer == NULL) {
+        return NULL;
+    }
+    char *ptr = buffer;
+    for (size_t i = 0; i < matrix->rows; ++i) {
+        for (size_t j = 0; j < matrix->cols; ++j) {
+            ptr += sprintf(ptr, "%f ", MAT_AT(*matrix, i, j));
+        }
+        ptr += sprintf(ptr, "\n");
+    }
+    return buffer;
+}
+
 int main(int argc, char **argv) {
     const char *program = args_shift(&argc, &argv);
     if(argc <= 0) {
@@ -71,15 +93,12 @@ int main(int argc, char **argv) {
         .es = &MAT_AT(t, 0, ti.cols),
     };
 
-    // MAT_PRINT(ti);
-    // MAT_PRINT(to);
-
-    const char *out_file_path = "img.mat";
-    FILE *out = fopen(out_file_path, "wb");
+    const char *out_file_path = "img.txt";
+    FILE *out = fopen(out_file_path, "w");
+    FILE *out_ = fopen(out_file_path, "r");
     if(out == NULL) {
         fprintf(stderr, "Error: could not open file %s\n", out_file_path);
     }
-    mat_save(out, t);
 
     size_t arch[] = {2, 7, 1};
     NN nn = nn_alloc(arch, ARRAY_LEN(arch));
@@ -92,19 +111,25 @@ int main(int argc, char **argv) {
     for(size_t epoch = 0; epoch < max_epochs; ++epoch) {
         nn_backprop(nn, g, ti, to);
         nn_learn(nn, g, rate);
-        if(epoch % 100 == 0) {
+
+        if(epoch % 10000 == 0) {
             system("cls");
             printf("%d / %d . Best value for maximum epochs %f\n\n", epoch, max_epochs, best);
-            for(size_t y = 0; y < (size_t) img_height; ++y) {
-                for(size_t x = 0; x < (size_t) img_width; ++x) {
-                    MAT_AT(NN_INPUT(nn), 0, 0) = (float)x/(img_width - 1);
-                    MAT_AT(NN_INPUT(nn), 0, 1) = (float)y/(img_height - 1);
-                    nn_forward(nn); // sig function activation
-                    uint8_t pixel = MAT_AT(NN_OUTPUT(nn), 0, 0)*255.f;
-                    if(pixel) printf("%3u ", pixel); else printf("    ");
-                }
-                printf("\n");
-            }
+            
+            char *matrix_string = matrix_to_string(&t);
+            fwrite(matrix_string, strlen(matrix_string), 1, out);
+            fclose(out);
+
+            // for(size_t y = 0; y < (size_t) img_height; ++y) {
+            //     for(size_t x = 0; x < (size_t) img_width; ++x) {
+            //         // MAT_AT(NN_INPUT(nn), 0, 0) = (float)x/(img_width - 1);
+            //         // MAT_AT(NN_INPUT(nn), 0, 1) = (float)y/(img_height - 1);
+            //         // nn_forward(nn);
+            //         // uint8_t pixel = MAT_AT(NN_OUTPUT(nn), 0, 0)*255.f;
+            //         // if(pixel) printf("%3u ", pixel); else printf("    ");
+            //     }
+            //     printf("\n");
+            // }
             // Sleep(100); // if you want :-)
         }
     }
