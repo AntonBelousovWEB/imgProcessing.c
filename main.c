@@ -93,12 +93,12 @@ int main(int argc, char **argv) {
         .es = &MAT_AT(t, 0, ti.cols),
     };
 
-    const char *out_file_path = "img.txt";
-    FILE *out = fopen(out_file_path, "w");
-    FILE *out_ = fopen(out_file_path, "r");
-    if(out == NULL) {
-        fprintf(stderr, "Error: could not open file %s\n", out_file_path);
-    }
+    // const char *out_file_path = "img.txt";
+    // FILE *out = fopen(out_file_path, "w");
+    // FILE *out_ = fopen(out_file_path, "r");
+    // if(out == NULL) {
+    //     fprintf(stderr, "Error: could not open file %s\n", out_file_path);
+    // }
 
     size_t arch[] = {2, 7, 1};
     NN nn = nn_alloc(arch, ARRAY_LEN(arch));
@@ -114,22 +114,22 @@ int main(int argc, char **argv) {
 
         if(epoch % 10000 == 0) {
             system("cls");
-            printf("%d / %d . Best value for maximum epochs %f\n\n", epoch, max_epochs, best);
+            printf("%zu / %zu . Best value for maximum epochs %f\n\n", epoch, max_epochs, best);
             
-            char *matrix_string = matrix_to_string(&t);
-            fwrite(matrix_string, strlen(matrix_string), 1, out);
-            fclose(out);
+            // char *matrix_string = matrix_to_string(&t);
+            // fwrite(matrix_string, strlen(matrix_string), 1, out);
+            // fclose(out);
 
-            // for(size_t y = 0; y < (size_t) img_height; ++y) {
-            //     for(size_t x = 0; x < (size_t) img_width; ++x) {
-            //         // MAT_AT(NN_INPUT(nn), 0, 0) = (float)x/(img_width - 1);
-            //         // MAT_AT(NN_INPUT(nn), 0, 1) = (float)y/(img_height - 1);
-            //         // nn_forward(nn);
-            //         // uint8_t pixel = MAT_AT(NN_OUTPUT(nn), 0, 0)*255.f;
-            //         // if(pixel) printf("%3u ", pixel); else printf("    ");
-            //     }
-            //     printf("\n");
-            // }
+            for(size_t y = 0; y < (size_t) img_height; ++y) {
+                for(size_t x = 0; x < (size_t) img_width; ++x) {
+                    MAT_AT(NN_INPUT(nn), 0, 0) = (float)x/(img_width - 1);
+                    MAT_AT(NN_INPUT(nn), 0, 1) = (float)y/(img_height - 1);
+                    nn_forward(nn);
+                    uint8_t pixel = MAT_AT(NN_OUTPUT(nn), 0, 0)*255.f;
+                    if(pixel) printf("%3u ", pixel); else printf("    ");
+                }
+                printf("\n");
+            }
             // Sleep(100); // if you want :-)
         }
     }
